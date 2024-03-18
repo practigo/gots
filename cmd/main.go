@@ -15,8 +15,8 @@ func showNPackets(r gots.Reader, n int) {
 			panic(err)
 		}
 
-		header := p.ParseHeader()
-		fmt.Printf("%v\n", header)
+		pd := p.ParseAll()
+		fmt.Printf("%v - %v - %d\n", pd.H, pd.Field, len(pd.Payload))
 	}
 }
 

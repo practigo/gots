@@ -71,6 +71,19 @@ type Header struct {
 	ContinuityCounter      uint32 // 4 bits
 }
 
+// AdaptationField ...
+type AdaptationField struct {
+	Len uint8
+}
+
+// PacketData ...
+type PacketData struct {
+	H     *Header
+	Field AdaptationField
+
+	Payload []byte
+}
+
 // Packet is the basic unit of data in a transport stream.
 type Packet [PacketSize]byte
 
@@ -91,6 +104,19 @@ func (p *Packet) ParseHeader() *Header {
 		AdaptationFieldControl: convertAdaption(h & 0x30),
 		ContinuityCounter:      h & 0xf,
 	}
+}
+
+// ParseAll parses the packet into a PacketData.
+func (p *Packet) ParseAll() *PacketData {
+	d := PacketData{}
+	d.H = p.ParseHeader()
+	if d.H.AdaptationFieldControl == AdaptationOnly || d.H.AdaptationFieldControl == AdaptationPayload {
+		d.Field = AdaptationField{
+			Len: uint8(p[4]) + 1,
+		}
+	}
+	d.Payload = p[4+d.Field.Len:]
+	return &d
 }
 
 // Reader reads the packets from a ts file.
