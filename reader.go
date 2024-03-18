@@ -65,7 +65,7 @@ type Header struct {
 	TEI                    bool
 	PUSI                   bool
 	Priority               bool
-	PID                    uint32 // 13 bits, use uint32 here for simplicity
+	PID                    uint16 // 13 bits
 	TSC                    string // 2 bits
 	AdaptationFieldControl string // 2 bits
 	ContinuityCounter      uint32 // 4 bits
@@ -99,7 +99,7 @@ func (p *Packet) ParseHeader() *Header {
 	return &Header{
 		TEI:                    h&0x800000 != 0,
 		PUSI:                   h&0x400000 != 0,
-		PID:                    (h & 0x1fff00) >> 8,
+		PID:                    uint16((h & 0x1fff00) >> 8),
 		TSC:                    convertScrambled(h & 0xc0),
 		AdaptationFieldControl: convertAdaption(h & 0x30),
 		ContinuityCounter:      h & 0xf,
